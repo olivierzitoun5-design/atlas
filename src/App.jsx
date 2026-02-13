@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -729,6 +729,268 @@ function L3() {
           <KPI small label="PMPM Post" value="$18,750" color={C.red} delta="+$10,330" dir="down" />
           <KPI small label="Brain Admits" value="19%" color={C.rose} delta="vs 6% pre" dir="down" />
           <KPI small label="Steroid Post" value="72%" color={C.amber} delta="vs 31% pre" dir="down" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Layer 8: Clinical Landscape (combined Sequencing + Friction + Cost) ──
+function L8() {
+  var _s = useState("pathways"), sub = _s[0], setSub = _s[1];
+  var tabs = [
+    { k: "pathways", label: "2L Pathways", icon: "\uD83C\uDFAF", color: C.indigo },
+    { k: "friction", label: "Time to Treatment", icon: "\u23F1\uFE0F", color: C.amber },
+    { k: "economics", label: "Economic Impact", icon: "\uD83D\uDCB0", color: C.red },
+  ];
+  return (
+    <div>
+      {/* Sub-tabs */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
+        {tabs.map(function (t) {
+          var active = sub === t.k;
+          return (
+            <button key={t.k} onClick={function () { setSub(t.k); }} style={{
+              padding: "7px 14px", borderRadius: 10, border: "1px solid " + (active ? t.color : "#e2e6ef"),
+              background: active ? t.color + "10" : "#fff", color: active ? t.color : "#8891a8",
+              fontSize: 11, fontWeight: active ? 700 : 500, cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
+            }}>
+              <span style={{ fontSize: 12 }}>{t.icon}</span>{t.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Pathways sub-tab */}
+      {sub === "pathways" && <L1 />}
+
+      {/* Friction sub-tab */}
+      {sub === "friction" && <L2 />}
+
+      {/* Economics sub-tab */}
+      {sub === "economics" && <L3 />}
+    </div>
+  );
+}
+
+// ── Layer 9: Interventions ──
+var INTERVENTIONS = [
+  {
+    stage: "W0 — Diagnosis", week: 0, color: C.violet,
+    items: [
+      { target: "HCP", action: "Mandate BRAF/PD-L1/TMB reflex panel at biopsy", criticality: "Critical", rationale: "28% start 1L without complete profiling. Delays BRAF-directed 2L by 14+ days. mRNA-4359 eligibility requires CPI-refractory confirmation.", metric: "% profiled at Dx → target 95%" },
+      { target: "HCP", action: "Introduce nurse navigator at first oncology visit", criticality: "Critical", rationale: "Retiree (38%) and Underserved (14%) personas most likely to disengage without proactive outreach. <30% of first-visit information retained.", metric: "Navigator assignment rate → target 100%" },
+      { target: "Patient", action: "Provide stage-appropriate written care plan with decision timeline", criticality: "High", rationale: "70% of social media posts cite emotional burden as primary impact. Structured information reduces anxiety and improves recall.", metric: "Care plan delivery rate → target 90%" },
+      { target: "Patient", action: "Connect to peer mentors and social support (MRA, AIM at Melanoma)", criticality: "Medium", rationale: "Young Adult persona (12%) drives online narrative. Early peer connection reduces isolation and scanxiety. Social support correlates with IO response (EMJ 2025).", metric: "Peer mentor referral rate" },
+      { target: "Digital", action: "Unbranded melanoma staging explainer series — animated 90s video + interactive disease model", criticality: "High", rationale: "70% cite emotional burden; <30% retain first-visit info. Short-form video on TikTok/YouTube reaches Young Adult (12%) and Professional (24%). Interactive 3D staging model lets patients explore their diagnosis at their pace, improving comprehension.", metric: "Video completion rate, model interaction time, shares" },
+      { target: "Digital", action: "Programmatic HCP display: 'Complete the Profile' — EHR-triggered reminders to order reflex panel", criticality: "Critical", rationale: "28% start 1L without full profiling. Point-of-care EHR alerts (via Doximity, Medscape, or Epic banner) at C43.x diagnosis trigger reflex test ordering. Geo-targeted to community oncology NPIs with lowest profiling rates.", metric: "Reflex panel order rate lift, impressions-to-order conversion" },
+      { target: "Digital", action: "SEO/SEM capture: own 'metastatic melanoma what to expect' — first 48h search intent", criticality: "High", rationale: "Patients and caregivers search within 48 hours of diagnosis. Branded content hub (unbranded, disease-state) captures intent and funnels to navigator enrollment and peer support. Reddit NLP shows 62% access digital before physician.", metric: "Organic traffic, time-on-site, navigator enrollment from digital" },
+    ],
+  },
+  {
+    stage: "W3 — 1L IO Start", week: 3, color: C.indigo,
+    items: [
+      { target: "HCP", action: "Standardize irAE monitoring protocol with structured toxicity grading", criticality: "Critical", rationale: "Steroid courses >10mg pred equivalent reduce IO PFS by ~15%. 72% receive steroids post-progression. Proactive monitoring prevents emergency steroid use.", metric: "Grade 3+ irAE rate, time to irAE detection" },
+      { target: "HCP", action: "Document baseline ECOG and comorbidities for future 2L/trial eligibility", criticality: "High", rationale: "ECOG 0-1 required for mRNA-4359. Only ~40% have ECOG documented within 60 days of progression. Baseline documentation enables rapid eligibility screening.", metric: "ECOG documentation rate → target 80%" },
+      { target: "Patient", action: "Educate on irAE recognition and when to call (not ER-first)", criticality: "High", rationale: "ER visits nearly triple at progression (24%→68%). Many irAE-related ER visits are avoidable with phone triage. Frail Elderly (12%) highest irAE mortality.", metric: "Avoidable ER rate for irAE" },
+      { target: "Patient", action: "Fertility preservation counseling for patients <40", criticality: "Medium", rationale: "Young Adult persona: fertility and body image are top fears. Must occur before 1L starts. 12% of pool but most vocal about system failures.", metric: "Fertility consult rate for <40 cohort" },
+      { target: "Digital", action: "irAE symptom-tracker app with photo diary, severity grading, and direct nurse-line triage", criticality: "High", rationale: "ER visits triple post-IO (24%→68%), many avoidable. App enables daily symptom logging, photo documentation of rash/skin changes, auto-severity scoring, and one-tap nurse callback. Push notifications for missed check-ins. Reduces ER-first behavior for Retiree and Elderly personas.", metric: "App enrollment, daily active use, ER deflection rate" },
+      { target: "Digital", action: "HCP podcast series: 'Immunotherapy Playbook' — irAE management masterclass from KOLs", criticality: "Medium", rationale: "Community oncologists manage irAE alone. 6-episode podcast featuring Johnson (Vanderbilt, irAE expert, h-index 70) and Hodi (Dana-Farber). Distributed via Doximity, Apple Podcasts, and CME platforms. Steroid-sparing protocols as core content.", metric: "Listens, CME completions, community HCP reach" },
+      { target: "Digital", action: "CRM enrollment: automated journey-stage email/SMS nurture from day 1 of IO", criticality: "High", rationale: "Without CRM, patients disappear between visits. Persona-adapted cadence: SMS for Young Adults, email for Professionals, phone-call triggers for Retirees. Content adapts by week: W1 'what to expect', W4 'first side effects', W8 'scan prep'. Builds engagement runway before the critical W36 progression moment.", metric: "CRM opt-in rate, open/click rates, retention at W36" },
+    ],
+  },
+  {
+    stage: "W12 — First Scan", week: 12, color: C.cyan,
+    items: [
+      { target: "HCP", action: "Add brain MRI to standard restaging protocol", criticality: "Critical", rationale: "Only 22% get proactive brain MRI at progression. Brain mets cut median OS in half (12m vs 24m). CNS-free status required for mRNA-4359 eligibility.", metric: "Brain MRI screening rate → target 80%" },
+      { target: "HCP", action: "Integrate ctDNA monitoring to detect molecular progression early", criticality: "High", rationale: "ctDNA can detect progression 2-3 months before imaging. Early detection compresses the 109-day gap. Validates true progression vs pseudoprogression.", metric: "ctDNA utilization rate at scan" },
+      { target: "Patient", action: "Pre-scan anxiety support (scanxiety protocol)", criticality: "High", rationale: "Scanxiety is #1 patient concern (MRA 2024). 62% access portal before physician call. Structured result delivery reduces panic-driven portal-checking.", metric: "Patient-reported scanxiety scores" },
+      { target: "Digital", action: "Scanxiety content campaign: 'Between the Scans' — 5-part video + guided meditation series", criticality: "High", rationale: "Scanxiety is #1 patient concern (MRA 2024). 62% check portal before physician. Series normalizes scan anxiety, teaches coping techniques, and redirects from portal-obsessing. Distributed via CRM push 7 days pre-scan. Meditation audio available on Spotify/Apple. Influencer partnership with melanoma survivor creators.", metric: "Pre-scan content engagement, portal-before-call rate reduction" },
+      { target: "Digital", action: "Patient portal UX redesign: structured results release with context layer", criticality: "High", rationale: "62% access portal before physician explains results. Raw scan reports cause panic. Redesigned portal adds plain-language summary, 'your care team will call within 24h' assurance, and links to scanxiety resources. Reduces ER visits triggered by misread reports.", metric: "Post-scan ER visit rate, patient satisfaction scores" },
+    ],
+  },
+  {
+    stage: "W18 — irAE Event", week: 18, color: C.amber,
+    items: [
+      { target: "HCP", action: "Develop steroid-sparing irAE management pathways", criticality: "Critical", rationale: "Steroids +132% post-progression. Each high-dose course may blunt IO efficacy. Infliximab for colitis, mycophenolate for hepatitis spare steroids.", metric: "Steroid-free irAE resolution rate" },
+      { target: "HCP", action: "Multidisciplinary irAE tumor board (onc + rheum + GI + endo)", criticality: "High", rationale: "Community oncologists manage irAE alone. Academic multidisciplinary approach reduces hospitalization. irAE mortality highest in Frail Elderly.", metric: "MDT irAE review rate" },
+      { target: "Patient", action: "Caregiver burnout screening and respite referral", criticality: "Medium", rationale: "Retiree persona: spouse caregiver often also elderly. Caregiver burnout accelerates patient disengagement. 68% of Retirees are married with spouse as sole caregiver.", metric: "Caregiver distress screening rate" },
+      { target: "Digital", action: "Telehealth irAE triage: on-demand video consult with IO-specialized nurse within 2 hours", criticality: "Critical", rationale: "ER visits triple at progression. Many irAE episodes don't require ER — but community patients have no alternative. 2-hour video triage diverts Grade 1-2 irAE from ER. Photo upload from symptom-tracker app feeds directly to triage nurse. Reduces hospitalization and steroid overuse.", metric: "Telehealth triage volume, ER diversion rate, time-to-resolution" },
+      { target: "Digital", action: "Caregiver support hub: private online community + respite resource finder by ZIP code", criticality: "Medium", rationale: "68% of Retirees have spouse as sole caregiver. Caregiver burnout accelerates patient disengagement. Digital hub offers peer forums (moderated), local respite services, and weekly live Q&A with social workers. Push notifications triggered by patient irAE events in symptom tracker.", metric: "Caregiver hub enrollment, engagement, respite utilization" },
+    ],
+  },
+  {
+    stage: "W36 — Progression", week: 36, color: C.red,
+    items: [
+      { target: "HCP", action: "Auto-trigger 2L decision pathway at progression documentation", criticality: "Critical", rationale: "Median 109 days to 2L (target 58). The gap is where 41% become invisible. Auto-trigger compresses Dx→Decision from 28d to <14d.", metric: "Days progression → 2L decision consult" },
+      { target: "HCP", action: "Community→Academic warm handoff protocol for trial-eligible patients", criticality: "Critical", rationale: "Community 2L conversion: 29% vs Academic 84%. 3,920 community patients lost = largest addressable population. Referral adds only 23 days but adds +4.2m OS.", metric: "Academic referral rate for community pts" },
+      { target: "HCP", action: "Screen all CPI-refractory patients for mRNA-4359 eligibility", criticality: "Critical", rationale: "920 eligible patients across 10 centers. MSK (168) and Moffitt (90) are NOT trial sites — 258 untapped patients. Requires: CPI-refractory + no CNS mets + ECOG 0-1.", metric: "4359 screening rate at progression" },
+      { target: "Patient", action: "Immediate psychosocial triage at progression disclosure", criticality: "High", rationale: "High-distress patients: 37% IO response vs 69% in low-distress (EMJ 2025). Distress is a negative biomarker. Progression is the highest-anxiety moment.", metric: "Psychosocial screen within 7d of progression" },
+      { target: "Patient", action: "Transportation and lodging assistance for academic referral", criticality: "High", rationale: "Underserved persona: public-transit dependent, 60-90min each way. Retiree: 45+ min to academic center. Distance is a structural barrier to 2L access.", metric: "Transport assistance utilization" },
+      { target: "Digital", action: "EHR-integrated 2L decision engine: auto-populates BRAF/ECOG/CNS status and surfaces eligible trials", criticality: "Critical", rationale: "The 109-day gap starts here. Point-of-care tool pulls biomarkers from MMIT, checks mRNA-4359 eligibility criteria automatically, and presents BRAF-stratified 2L options with rwOS data. One-click referral to nearest academic trial site. Reduces physician cognitive load at the highest-stakes decision point.", metric: "Tool activation rate, time to 2L decision, trial referral clicks" },
+      { target: "Digital", action: "Triggered media campaign: 'Don't Wait' — progression-aware programmatic targeting to community HCPs", criticality: "Critical", rationale: "Community 2L conversion 29% vs Academic 84%. Programmatic ads triggered by claims data signals (new C78/C79 codes, IO discontinuation) targeting the treating NPI within 7 days. Channels: Doximity inbox, EHR banner, point-of-care display. Message: 'Your patient may be eligible for a 2L option with 21.4m rwOS — refer now.'", metric: "Triggered ad delivery rate, referral lift, time-to-2L compression" },
+      { target: "Digital", action: "Patient progression microsite: 'What Comes Next' — interactive 2L pathway comparison tool", criticality: "High", rationale: "Working Professional needs data to decide; Young Adult needs to feel agency. Interactive tool shows personalized 2L options by BRAF status, compares rwOS/side effects, locates nearest trial sites on map, and connects to navigator. Pushed via CRM at progression detection. Social-sharable for peer advocacy.", metric: "Microsite visits, tool completions, navigator referrals from digital" },
+      { target: "Digital", action: "Geo-targeted trial awareness: paid social + search campaign around 7 mRNA-4359 sites + MSK/Moffitt gap", criticality: "Critical", rationale: "258 eligible patients at MSK/Moffitt with no active 4359 site. Geo-fenced paid search (Google) and social (Facebook/Instagram) within 100mi of each trial site + gap sites. HCP-facing on Doximity/Medscape. Patient-facing on melanoma subreddits, Facebook groups, and AIM at Melanoma forums.", metric: "Trial inquiry volume by site, cost-per-inquiry, MSK/Moffitt referral-out rate" },
+    ],
+  },
+  {
+    stage: "W42 — The Limbo", week: 42, color: "#6b7280",
+    items: [
+      { target: "HCP", action: "Weekly outreach cadence for patients without active treatment plan", criticality: "Critical", rationale: "This is where the 41% are lost. Median 109 days with no active Tx. Weekly touchpoints keep patients in the system. Phone for Retirees, portal for Professionals.", metric: "% of limbo patients with weekly contact" },
+      { target: "HCP", action: "Proactive palliative care integration (not hospice referral)", criticality: "High", rationale: "Palliative care within 8 weeks of progression adds 2.7m median OS (ASCO guidelines). <20% currently receive it. Framing matters: 'symptom management' not 'end of life'.", metric: "Palliative referral within 8 weeks of progression" },
+      { target: "HCP", action: "Clinical trial matching service at every progression visit", criticality: "High", rationale: "Only 10% reach trials despite best rwOS (21.4m). Community oncologists rarely screen. Automated matching (TrialScope, Tempus) bridges the gap.", metric: "Trial screening rate at progression" },
+      { target: "Patient", action: "Structured decision aid: 2L options comparison with personalized data", criticality: "High", rationale: "Working Professional persona: information overload → decision paralysis. Young Adult: researches aggressively but lacks medical context. Clear comparison reduces limbo duration.", metric: "Decision aid delivery rate, time in limbo" },
+      { target: "Patient", action: "Community health worker bridge for Underserved patients", criticality: "High", rationale: "Underserved persona: medical mistrust, language barriers, fatalism. CHWs are culturally concordant and trusted. 2.3x more likely to become invisible 41%.", metric: "CHW assignment rate for Medicaid/uninsured" },
+      { target: "Digital", action: "Re-engagement CRM sequence: escalating outreach cadence triggered by appointment no-shows", criticality: "Critical", rationale: "The 41% don't dramatically decide to stop — they drift. CRM detects missed appointments and triggers persona-adapted re-engagement: SMS day 1, navigator phone call day 3, caregiver alert day 7, physician letter day 14. Retiree gets phone; Professional gets portal ping; Underserved gets CHW visit.", metric: "Re-engagement conversion rate, days-to-reactivation, invisible 41% reduction" },
+      { target: "Digital", action: "'Still Fighting' social media campaign: survivor stories challenging the limbo narrative", criticality: "High", rationale: "Depression language peaks 6-8m post-diagnosis (Reddit NLP, n=72,524). Limbo feels like abandonment. UGC campaign featuring 2L survivors telling their 'I almost gave up' stories. Distributed across TikTok, Instagram Reels, YouTube Shorts, r/melanoma. Drives patients back to care team and trial search.", metric: "UGC submissions, campaign reach, care-team reconnection rate" },
+      { target: "Digital", action: "AI-powered trial matcher chatbot: instant eligibility check for mRNA-4359 and other open trials", criticality: "High", rationale: "Only 10% reach trials despite best rwOS (21.4m). Chatbot on patient microsite and CRM-embedded asks 5 questions (BRAF status, brain MRI result, ECOG, prior CPI, measurable disease), returns instant eligibility for mRNA-4359 + other open trials by distance. Reduces friction from 'ask your doctor' to 'you may qualify — here's who to call.'", metric: "Chatbot sessions, eligibility-positive rate, trial inquiry conversions" },
+    ],
+  },
+  {
+    stage: "W52 — 2L Start", week: 52, color: C.emerald,
+    items: [
+      { target: "HCP", action: "BRAF-stratified 2L regimen selection protocol", criticality: "Critical", rationale: "BRAF-mut→BRAF/MEK (18.6m rwOS) vs BRAF-WT→Ipi or trial. 40% of BRAF-WT receive no 2L. BRAF status must drive the decision tree.", metric: "BRAF-concordant 2L selection rate" },
+      { target: "HCP", action: "Enroll eligible patients in mRNA-4359 or other active trials", criticality: "Critical", rationale: "mRNA-4359: 24% ORR, 67% PD-L1+. Best rwOS pathway (21.4m) but only 10% enrolled. Sullivan (coordinating PI) and 6 other sites active.", metric: "Trial enrollment rate among eligible" },
+      { target: "Patient", action: "Financial toxicity screening and assistance program enrollment", criticality: "High", rationale: "PMPM jumps from $8,420 to $18,750 at 2L. Working Professional: financial toxicity from work interruption. Underserved: financial catastrophe > disease fear.", metric: "Financial assistance enrollment rate" },
+      { target: "Digital", action: "Adherence + outcomes tracking dashboard: patient-facing app with treatment calendar, lab trends, and milestone celebrations", criticality: "High", rationale: "2L completion rate is only 27% (3,892 of 14,280). Digital adherence tool with medication reminders, lab result visualization, and gamified milestone badges ('4 weeks complete!') improves retention. Integrates with symptom tracker from W3. Data feeds back to care team for early dropout detection.", metric: "App daily active users, 2L completion rate lift, dropout early-warning triggers" },
+      { target: "Digital", action: "Copay navigation bot + benefits verification automation", criticality: "High", rationale: "PMPM $18,750 at 2L. Financial toxicity drives discontinuation, especially Working Professional (work interruption) and Underserved (financial catastrophe > disease fear). Automated benefits verification at 2L order, instant copay card enrollment, and real-time out-of-pocket estimator. Removes the 'how will I pay for this?' barrier at the exact moment of 2L decision.", metric: "Benefits verification completion rate, copay assistance enrollment, financial discontinuation rate" },
+    ],
+  },
+  {
+    stage: "W64+ — Ongoing", week: 64, color: C.sky,
+    items: [
+      { target: "HCP", action: "Standardize q12-week surveillance with ctDNA + imaging", criticality: "High", rationale: "Post-2L monitoring is inconsistent. ctDNA enables early 3L decision. Only 11.5% reach 3L — earlier detection of progression could improve this.", metric: "Surveillance adherence rate" },
+      { target: "HCP", action: "Geriatric oncology assessment for 75+ patients continuing treatment", criticality: "High", rationale: "Frail Elderly: ECOG 2+ at baseline (42%). Underrepresented in trials. Community defaults to comfort care even when 2L appropriate.", metric: "Geriatric assessment rate for 75+" },
+      { target: "Patient", action: "Survivorship care plan with fear-of-recurrence support", criticality: "Medium", rationale: "Post-treatment 'adrift' feeling is universal (Fear-Less CBT, PMC). Depression language peaks 6-8m post-treatment (Reddit NLP). Structured survivorship reduces long-term distress.", metric: "Survivorship plan delivery rate" },
+      { target: "Digital", action: "Long-term survivorship community platform: moderated forum + quarterly virtual town halls with KOLs", criticality: "Medium", rationale: "Post-treatment 'adrift' is universal (Fear-Less CBT). Depression peaks 6-8m post-treatment. Always-on community with peer support, quarterly live Q&As featuring KOLs (Ribas, Wolchok), and curated content pipeline. Transitions patients from acute-phase CRM to long-term engagement. Alumni become peer navigators for newly diagnosed.", metric: "Platform MAU, NPS, peer navigator conversion rate" },
+      { target: "Digital", action: "RWD feedback loop: anonymized patient outcomes data visualization for treating HCPs", criticality: "High", rationale: "Community HCPs don't see aggregate outcomes — they treat in isolation. Dashboard showing their patients' outcomes vs benchmarks (academic 2L conversion 84%, their rate X%) creates accountability and motivation. Delivered as quarterly Doximity-embedded report or EHR dashboard widget.", metric: "HCP dashboard adoption, 2L conversion rate lift over time" },
+    ],
+  },
+];
+
+function L9() {
+  var _s = useState("all"), filter = _s[0], setFilter = _s[1];
+  var _e = useState(null), expanded = _e[0], setExpanded = _e[1];
+
+  var critColor = { Critical: C.red, High: C.amber, Medium: C.indigo };
+  var critIcon = { Critical: "\uD83D\uDD34", High: "\uD83D\uDFE0", Medium: "\uD83D\uDD35" };
+  var targetIcon = { HCP: "\u2695\uFE0F", Patient: "\uD83E\uDDD1", Digital: "\uD83D\uDCF1" };
+  var targetColor = { HCP: C.emerald, Patient: C.violet, Digital: C.sky };
+
+  // Count totals
+  var allItems = [];
+  INTERVENTIONS.forEach(function (s) { s.items.forEach(function (it) { allItems.push(Object.assign({}, it, { stage: s.stage, stageColor: s.color })); }); });
+  var critCounts = { Critical: 0, High: 0, Medium: 0 };
+  var targetCounts = { HCP: 0, Patient: 0, Digital: 0 };
+  allItems.forEach(function (it) { critCounts[it.criticality]++; targetCounts[it.target]++; });
+
+  return (
+    <div>
+      {/* Summary KPIs */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 10, marginBottom: 16 }}>
+        <KPI small label="Total Actions" value={allItems.length} color={C.indigo} />
+        <KPI small label="Critical" value={critCounts.Critical} color={C.red} />
+        <KPI small label="High Priority" value={critCounts.High} color={C.amber} />
+        <KPI small label="HCP Clinical" value={targetCounts.HCP} color={C.emerald} />
+        <KPI small label="Patient Support" value={targetCounts.Patient} color={C.violet} />
+        <KPI small label="Digital / Media" value={targetCounts.Digital} color={C.sky} />
+      </div>
+
+      {/* Filters */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
+        {[["all", "All Interventions", C.indigo], ["Critical", "\uD83D\uDD34 Critical Only", C.red], ["High", "\uD83D\uDFE0 High Priority", C.amber], ["HCP", "\u2695\uFE0F HCP Clinical", C.emerald], ["Patient", "\uD83E\uDDD1 Patient Support", C.violet], ["Digital", "\uD83D\uDCF1 Digital / Media", C.sky]].map(function (f) {
+          var active = filter === f[0];
+          return (
+            <button key={f[0]} onClick={function () { setFilter(f[0]); }} style={{
+              padding: "5px 12px", borderRadius: 14, border: "1px solid " + (active ? f[2] : "#e2e6ef"),
+              background: active ? f[2] + "10" : "#fff", color: active ? f[2] : "#8891a8",
+              fontSize: 10, fontWeight: active ? 700 : 500, cursor: "pointer",
+            }}>
+              {f[1]}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Journey stages */}
+      {INTERVENTIONS.map(function (stage, si) {
+        var filtered = stage.items.filter(function (it) {
+          if (filter === "all") return true;
+          if (filter === "Critical" || filter === "High" || filter === "Medium") return it.criticality === filter;
+          return it.target === filter;
+        });
+        if (filtered.length === 0) return null;
+
+        var isOpen = expanded === si || expanded === null;
+        return (
+          <div key={si} style={{ marginBottom: 14 }}>
+            {/* Stage header */}
+            <button onClick={function () { setExpanded(expanded === si ? null : si); }} style={{
+              display: "flex", alignItems: "center", gap: 8, width: "100%",
+              padding: "10px 14px", borderRadius: 10, border: "1px solid " + stage.color + "33",
+              background: stage.color + "08", cursor: "pointer", textAlign: "left",
+            }}>
+              <div style={{ width: 8, height: 8, borderRadius: 4, background: stage.color, flexShrink: 0 }} />
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.text, flex: 1 }}>{stage.stage}</span>
+              <span style={{ fontSize: 9, color: "#8891a8", padding: "2px 8px", background: "#fff", borderRadius: 8, border: "1px solid #e2e6ef" }}>{filtered.length} intervention{filtered.length !== 1 ? "s" : ""}</span>
+              <span style={{ fontSize: 11, color: "#8891a8", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>{"\u25BC"}</span>
+            </button>
+
+            {/* Intervention cards */}
+            {isOpen && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8, paddingLeft: 16 }}>
+                {filtered.map(function (item, ii) {
+                  return (
+                    <div key={ii} style={{
+                      background: "#fff", border: "1px solid #e2e6ef", borderRadius: 10,
+                      borderLeft: "3px solid " + critColor[item.criticality],
+                      padding: "12px 14px",
+                    }}>
+                      {/* Card header */}
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 6 }}>
+                        <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>{targetIcon[item.target]}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: "#1a1d2e", lineHeight: 1.35 }}>{item.action}</div>
+                          <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                            <span style={{
+                              fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 6,
+                              background: critColor[item.criticality] + "12", color: critColor[item.criticality],
+                            }}>
+                              {critIcon[item.criticality]} {item.criticality}
+                            </span>
+                            <span style={{
+                              fontSize: 9, fontWeight: 600, padding: "2px 7px", borderRadius: 6,
+                              background: (targetColor[item.target] || C.sky) + "12",
+                              color: targetColor[item.target] || C.sky,
+                            }}>
+                              {targetIcon[item.target] || "\uD83D\uDCF1"} {item.target}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Rationale */}
+                      <div style={{ fontSize: 10, color: "#4a5068", lineHeight: 1.5, marginBottom: 6, paddingLeft: 22 }}>
+                        {item.rationale}
+                      </div>
+                      {/* Metric */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, paddingLeft: 22 }}>
+                        <span style={{ fontSize: 9, fontWeight: 600, color: "#8891a8" }}>KPI:</span>
+                        <span style={{ fontSize: 9, color: C.indigo, fontWeight: 600, fontFamily: "monospace" }}>{item.metric}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Summary insight */}
+      <div style={{ marginTop: 16, padding: "12px 16px", borderRadius: 10, background: C.red + "08", border: "1px solid " + C.red + "22" }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: C.red, marginBottom: 4 }}>Strategic Priority</div>
+        <div style={{ fontSize: 10, color: "#4a5068", lineHeight: 1.6 }}>
+          The 3 highest-impact clinical interventions target <strong>W36 Progression</strong>: auto-triggering the 2L pathway, community→academic warm handoff, and mRNA-4359 eligibility screening. The digital layer amplifies each: EHR-integrated decision engines compress time-to-2L, claims-triggered programmatic media activates community HCPs within 7 days, and geo-fenced trial awareness campaigns reach 258 eligible patients at non-trial sites (MSK + Moffitt). The CRM journey — built from W3 enrollment through W42 re-engagement — is the connective tissue that prevents patients from becoming the invisible 41%.
         </div>
       </div>
     </div>
@@ -1845,13 +2107,432 @@ function L7() {
   );
 }
 
+// ── Atlas Chat Panel (Powered by Claude) ──
+var ATLAS_KNOWLEDGE = `You are an expert analyst embedded inside the Melanoma 2L RWD Atlas dashboard. You have complete knowledge of every data point, insight, and strategic recommendation in the atlas. Answer questions conversationally and precisely, citing specific numbers from the data below. Keep answers concise (2-4 paragraphs max) unless the user asks for detail.
+
+FORMATTING: Use **bold** sparingly for key numbers or terms. Use bullet points (- ) for lists. Do NOT use headers (#) unless the answer has distinct sections. Prefer flowing prose over heavy structure. Never use more than one level of bold nesting.
+
+## PATIENT FUNNEL
+- 14,280 patients start 1L IO (immunotherapy) for metastatic melanoma
+- 8,854 (62%) progress within 12 months
+- 6,712 (47%) reach 2L treatment
+- 3,892 (27%) complete 2L
+- 1,642 (11.5%) reach 3L
+- THE INVISIBLE 41%: 5,855 patients progress but NEVER receive 2L treatment. This is the single largest addressable gap.
+
+## 2L SEQUENCING PATHWAYS
+- PD-1→Ipilimumab: 28% of 2L patients (rwOS 14.2m, rwTTNT 6.8m)
+- PD-1→BRAF/MEK: 21% (rwOS 18.6m, rwTTNT 9.4m) — only for BRAF-mutant patients
+- PD-1→Clinical Trial: 10% (rwOS 21.4m, rwTTNT 8.2m) — best outcomes
+- PD-1→No Treatment: 41% (rwOS 6.8m, rwTTNT 3.1m) — worst outcomes
+- BRAF status: 45% BRAF-mutant, 55% BRAF wild-type in overall cohort
+- No NCCN-endorsed standard 2L pathway exists — this is the clinical gap
+
+## FRICTION / TIME GAPS
+- Median time from progression to 2L start: 109 days (target: 58 days)
+- Breakdown: 1L→Imaging 42d (target 30d), Imaging→Dx 18d (target 7d), Dx→Decision 28d (target 14d), Decision→2L 21d (target 7d)
+- Community patients: 127 days median gap, 64% wait >60 days
+- Academic patients: 82 days median gap, 34% wait >60 days
+- Every extra 30 days of delay = measurable OS decrease
+
+## COMMUNITY vs ACADEMIC
+- Community: 68% of patients (9,700 1L, 2,850 reach 2L, 3,920 LOST = never get 2L)
+- Academic: 32% of patients (4,580 1L, 3,860 reach 2L, 1,930 lost)
+- 2L conversion: Academic 84% vs Community 29% — this is the largest gap
+- Community 3,920 lost patients = single largest addressable population
+
+## COST & UTILIZATION
+- PMPM (per member per month) pre-progression: $4,200 → $12,600 at progression
+- PMPM post-progression: $12,600 → $22,100 peak at month +4
+- Treated vs untreated: Treated ~$17-20K/month; Untreated declines then terminal spike
+- ER visits: 24% pre → 68% post-progression
+- Steroid courses: +132% post-progression
+- Hospitalization: 18% pre → 42% post-progression
+
+## ACADEMIC CENTER VOLUMES (Top 10)
+- MD Anderson: 1,420 total, 680 2L, 186 mRNA-4359 eligible, ACTIVE trial site
+- MSK: 1,280 total, 615 2L, 168 eligible, NOT a trial site (gap!)
+- Dana-Farber: 890 total, 428 2L, 117 eligible, ACTIVE trial site
+- UCLA: 760 total, 365 2L, 100 eligible, NOT a trial site
+- Moffitt: 680 total, 327 2L, 90 eligible, NOT a trial site (gap!)
+- U Chicago: 520 total, 250 2L, 68 eligible, ACTIVE trial site
+- UCSF: 480 total, 230 2L, 63 eligible, ACTIVE trial site
+- Wash U/Siteman: 410 total, 197 2L, 54 eligible, ACTIVE trial site
+- OHSU: 340 total, 163 2L, 45 eligible, ACTIVE trial site
+- GW University: 220 total, 106 2L, 29 eligible, ACTIVE trial site
+- Total mRNA-4359 eligible across 10 centers: 920 patients
+- MSK (168) + Moffitt (90) = 258 eligible patients at NON-trial sites = highest-value recruitment gap
+
+## mRNA-4359 (NCT05533697)
+- Moderna's mRNA-based cancer vaccine targeting shared tumor antigens
+- Eligibility: CPI-refractory, no active CNS mets, ECOG 0-1, measurable disease
+- Phase 1/2 results: monotherapy 50% stable disease, 93% T-cell response
+- +pembrolizumab combo: 24% ORR, 67% PD-L1+ enrichment
+- 7 active US trial sites (see above)
+- Coordinating PI: Ryan Sullivan (MGH/Dana-Farber)
+- Related: mRNA-4157/V940 (KEYNOTE-942) personalized neoantigen vaccine showed 44% RFS improvement in adjuvant melanoma
+
+## KEY OPINION LEADERS (KOLs)
+Tier 1 KOLs:
+- Antoni Ribas (UCLA, h-index 142, KEYNOTE PI, NCCN)
+- Jedd Wolchok (MSK, h-index 138, CheckMate-067/069 PI, NCCN) — NOT a 4359 investigator despite MSK's 168 eligible patients
+- Ryan Sullivan (MGH/Dana-Farber, h-index 68, mRNA-4359 Coordinating PI, NCCN) — most strategically critical
+- F. Stephen Hodi (Dana-Farber, h-index 125, Ipi landmark trials)
+- Hussein Tawbi (MD Anderson, h-index 62, CheckMate-204 brain mets PI, NCCN)
+- Jason Luke (UPMC, h-index 72, IO combos)
+- Adil Daud (UCSF, h-index 58, mRNA-4359 Site PI)
+- Douglas Johnson (Vanderbilt, h-index 70, irAE biology)
+- Michael Atkins (Georgetown, h-index 108, NCCN)
+Tier 2 DOLs: Omid Hamid (Angeles Clinic), April Salama (Duke), Sapna Patel (MD Anderson, disparities), Harriet Kluger (Yale), Sunandana Kummar (OHSU, mRNA-4359 Site PI)
+
+## PATIENT PERSONAS (5 archetypes)
+1. Sun-Belt Retiree "Richard" (38%): Age 68, Medicare, rural, low digital, deferential. HIGHEST risk of becoming invisible 41%. Needs phone-based nurse navigator.
+2. Working Professional "David" (24%): Age 52, commercial insurance, urban, high digital, info-overload risk. Highest burnout. Needs streamlined decision tools.
+3. Young Adult "Melissa" (12%): Age 34, 58% BRAF-mutant, social media activist, fertility/body image fears. Most likely to travel for trials. Needs AYA peer navigation.
+4. Underserved "James" (14%): Age 58, Medicaid, Black/Hispanic, 62% diagnosed stage III-IV, 2.3x more likely invisible 41%, 3% trial enrollment. Needs CHWs, transportation, culturally concordant care.
+5. Frail Elderly "Margaret" (12%): Age 78, ECOG 2+ (42%), highest irAE mortality, community defaults to comfort care. Needs geriatric oncology assessment.
+
+## SURVIVAL
+- Brain mets at progression: median OS ~12 months from 2L start (exponential decay)
+- No brain mets: median OS ~24 months from 2L start
+- Only 22% get proactive brain MRI screening at progression
+- Untreated patients (no 2L): median OS 6.8 months
+
+## JOURNEY MAP MILESTONES
+W0 Diagnosis (Biopsy, BRAF/PD-L1) → W3 1L IO Start (Nivo+Ipi 52%, PD-1 mono 48%) → W12 First Scan (CT/PET, ctDNA) → W18 irAE Event (Steroids 72%, IO hold/d/c 36%) → W36 Progression (IO failure, Brain MRI 22%) → W42 The Limbo (No active Tx, 109d median gap) → 2L Branches (Ipi, BRAF/MEK, Trial, BSC) → W52 2L Start → W64+ Ongoing surveillance
+
+## SOCIAL LISTENING HIGHLIGHTS
+- 70% of melanoma social posts cite emotional burden as primary impact (above physical 24%, social 17%)
+- "Scanxiety" is #1 patient concern (MRA 2024 Patient Forum)
+- 62% access patient portal before physician (Reddit r/melanoma)
+- High-distress patients: 37% IO response vs 69% in low-distress (EMJ 2025) — distress as negative biomarker
+- Depression language peaks 6-8 months post-diagnosis (Reddit NLP, n=72,524)
+- Post-treatment "adrift" feeling is universal (Fear-Less CBT Program, PMC)
+
+## INTERVENTIONS (35 total: 20 HCP + 15 Patient, spanning 8 journey stages)
+Top 3 Critical interventions at W36 Progression:
+1. Auto-trigger 2L decision pathway at progression (compresses 28d→14d)
+2. Community→Academic warm handoff for trial-eligible (3,920 community lost, referral adds +4.2m OS)
+3. Screen all CPI-refractory patients for mRNA-4359 eligibility (920 eligible, 258 at non-trial sites)
+Other Critical interventions: BRAF/PD-L1/TMB reflex panel at biopsy (28% start without), nurse navigator at first visit, irAE monitoring protocol, brain MRI at restaging (only 22% get it), steroid-sparing irAE management, weekly outreach during Limbo, BRAF-stratified 2L selection, trial enrollment for eligible.
+Key Patient interventions: written care plan at Dx, irAE education, scanxiety protocol, psychosocial triage at progression, transportation assistance, decision aids during Limbo, CHW bridge for Underserved, financial toxicity screening at 2L, survivorship care plan.
+
+## DATA SOURCES
+32 named sources including: SEER/NCI, NCCN Guidelines, Flatiron-type RWD, CheckMate-067/069, KEYNOTE-002/006, ClinicalTrials.gov NCT05533697, JMIR Cancer, BMC Cancer 2024, Reddit NLP, EMJ 2025, MIA, ASCO 2023. Current dashboard uses illustrative data; production version will use Symphony Claims + MMIT Lab/EHR.
+
+## STRATEGIC POSITIONING
+This atlas is designed to position Moderna as a transformation partner for pharmaceutical companies. Key narrative: the 41% invisible patients represent the largest unmet need in melanoma. mRNA-4359 addresses this gap specifically for CPI-refractory patients. The community-to-academic referral pathway is where most patients are lost. Publicis's "One Platform for Your Platform" concept uniquely matches the multi-channel intervention needed.`;
+
+// ── Lightweight Markdown Renderer for Chat ──
+function renderMd(text) {
+  if (!text) return null;
+  var lines = text.split("\n");
+  var elements = [];
+  var key = 0;
+
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
+
+    // Blank line → small spacer
+    if (line.trim() === "") {
+      elements.push(<div key={key++} style={{ height: 6 }} />);
+      continue;
+    }
+
+    // Heading ### / ## / #
+    var h3 = line.match(/^###\s+(.+)/);
+    if (h3) { elements.push(<div key={key++} style={{ fontWeight: 700, fontSize: 11, marginTop: 6, marginBottom: 2, color: "#4f46e5" }}>{inlineMd(h3[1])}</div>); continue; }
+    var h2 = line.match(/^##\s+(.+)/);
+    if (h2) { elements.push(<div key={key++} style={{ fontWeight: 700, fontSize: 12, marginTop: 8, marginBottom: 3, color: "#1a1d2e" }}>{inlineMd(h2[1])}</div>); continue; }
+    var h1 = line.match(/^#\s+(.+)/);
+    if (h1) { elements.push(<div key={key++} style={{ fontWeight: 700, fontSize: 13, marginTop: 8, marginBottom: 3, color: "#1a1d2e" }}>{inlineMd(h1[1])}</div>); continue; }
+
+    // Bullet list: - or * or •
+    var bullet = line.match(/^\s*[-*•]\s+(.+)/);
+    if (bullet) { elements.push(<div key={key++} style={{ paddingLeft: 12, position: "relative", marginBottom: 1 }}><span style={{ position: "absolute", left: 2, color: "#4f46e5", fontWeight: 700 }}>\u2022</span>{inlineMd(bullet[1])}</div>); continue; }
+
+    // Numbered list: 1. or 1)
+    var numbered = line.match(/^\s*(\d+)[.)]\s+(.+)/);
+    if (numbered) { elements.push(<div key={key++} style={{ paddingLeft: 16, position: "relative", marginBottom: 1 }}><span style={{ position: "absolute", left: 0, fontWeight: 600, color: "#4f46e5", fontSize: 11 }}>{numbered[1]}.</span>{inlineMd(numbered[2])}</div>); continue; }
+
+    // Regular paragraph
+    elements.push(<div key={key++} style={{ marginBottom: 2 }}>{inlineMd(line)}</div>);
+  }
+  return elements;
+}
+
+function inlineMd(text) {
+  // Process inline markdown: **bold**, *italic*, `code`
+  var parts = [];
+  var k = 0;
+  // Split on patterns: **bold**, *italic*, `code`
+  var regex = /(\*\*(.+?)\*\*)|(\*(.+?)\*)|(`(.+?)`)/g;
+  var lastIndex = 0;
+  var match;
+  while ((match = regex.exec(text)) !== null) {
+    // Push text before match
+    if (match.index > lastIndex) {
+      parts.push(<span key={k++}>{text.slice(lastIndex, match.index)}</span>);
+    }
+    if (match[2]) {
+      // **bold**
+      parts.push(<strong key={k++} style={{ fontWeight: 700 }}>{match[2]}</strong>);
+    } else if (match[4]) {
+      // *italic*
+      parts.push(<em key={k++}>{match[4]}</em>);
+    } else if (match[6]) {
+      // `code`
+      parts.push(<code key={k++} style={{ background: "#f0f1f5", padding: "1px 4px", borderRadius: 3, fontSize: 11, fontFamily: "monospace" }}>{match[6]}</code>);
+    }
+    lastIndex = match.index + match[0].length;
+  }
+  // Push remaining text
+  if (lastIndex < text.length) {
+    parts.push(<span key={k++}>{text.slice(lastIndex)}</span>);
+  }
+  return parts.length > 0 ? parts : text;
+}
+
+function ChatPanel() {
+  var _s = useState(false), open = _s[0], setOpen = _s[1];
+  var _m = useState([]), msgs = _m[0], setMsgs = _m[1];
+  var _i = useState(""), input = _i[0], setInput = _i[1];
+  var _l = useState(false), loading = _l[0], setLoading = _l[1];
+  var scrollRef = useRef(null);
+  var inputRef = useRef(null);
+
+  useEffect(function () {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [msgs, loading]);
+
+  useEffect(function () {
+    if (open && inputRef.current) inputRef.current.focus();
+  }, [open]);
+
+  function sendMessage() {
+    if (!input.trim() || loading) return;
+    var userMsg = { role: "user", content: input.trim() };
+    var updated = msgs.concat([userMsg]);
+    setMsgs(updated);
+    setInput("");
+    setLoading(true);
+
+    // Build conversation history for API
+    var apiMessages = updated.map(function (m) { return { role: m.role, content: m.content }; });
+
+    fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        system: ATLAS_KNOWLEDGE,
+        messages: apiMessages,
+      }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var text = (data.content || [])
+          .map(function (b) { return b.type === "text" ? b.text : ""; })
+          .filter(Boolean)
+          .join("\n");
+        setMsgs(function (prev) { return prev.concat([{ role: "assistant", content: text || "I wasn\u2019t able to generate a response. Please try again." }]); });
+        setLoading(false);
+      })
+      .catch(function () {
+        setMsgs(function (prev) { return prev.concat([{ role: "assistant", content: "Connection error. Please try again." }]); });
+        setLoading(false);
+      });
+  }
+
+  // Floating button
+  var fab = (
+    <button
+      onClick={function () { setOpen(!open); }}
+      style={{
+        position: "fixed", bottom: 24, right: 24, zIndex: 9999,
+        width: 52, height: 52, borderRadius: 26,
+        background: "linear-gradient(135deg,#4f46e5,#7c3aed)",
+        border: "none", cursor: "pointer",
+        boxShadow: "0 4px 20px rgba(79,70,229,0.4)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        transition: "transform 0.2s",
+      }}
+      onMouseEnter={function (e) { e.currentTarget.style.transform = "scale(1.08)"; }}
+      onMouseLeave={function (e) { e.currentTarget.style.transform = "scale(1)"; }}
+      title="Ask Atlas"
+    >
+      <span style={{ fontSize: 22, color: "#fff" }}>{open ? "\u2715" : "\uD83D\uDCAC"}</span>
+    </button>
+  );
+
+  if (!open) return fab;
+
+  var suggestedQuestions = [
+    "What is the invisible 41%?",
+    "Which centers should Moderna target?",
+    "Describe the Sun-Belt Retiree persona",
+    "What drives the community vs academic gap?",
+  ];
+
+  return (
+    <>
+      {fab}
+      <div style={{
+        position: "fixed", bottom: 86, right: 24, zIndex: 9998,
+        width: 400, height: 520, borderRadius: 16,
+        background: "#fff", border: "1px solid #e2e6ef",
+        boxShadow: "0 8px 40px rgba(0,0,0,0.15)",
+        display: "flex", flexDirection: "column", overflow: "hidden",
+      }}>
+        {/* Chat header */}
+        <div style={{
+          padding: "14px 16px", borderBottom: "1px solid #e2e6ef",
+          background: "linear-gradient(135deg,#4f46e5,#7c3aed)",
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>Ask Atlas</div>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>Your guide to every insight in the Atlas</div>
+        </div>
+
+        {/* Messages */}
+        <div ref={scrollRef} style={{
+          flex: 1, overflowY: "auto", padding: "12px 14px",
+          display: "flex", flexDirection: "column", gap: 10,
+          background: "#f8f9fc",
+        }}>
+          {msgs.length === 0 && !loading && (
+            <div style={{ padding: "16px 0" }}>
+              <div style={{ fontSize: 12, color: "#8891a8", marginBottom: 10, textAlign: "center" }}>
+                Try asking:
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {suggestedQuestions.map(function (q, i) {
+                  return (
+                    <button
+                      key={i}
+                      onClick={function () { setInput(q); }}
+                      style={{
+                        padding: "8px 12px", borderRadius: 10,
+                        border: "1px solid #e2e6ef", background: "#fff",
+                        fontSize: 11, color: "#4a5068", cursor: "pointer",
+                        textAlign: "left", transition: "all 0.15s",
+                      }}
+                      onMouseEnter={function (e) { e.currentTarget.style.borderColor = "#4f46e5"; e.currentTarget.style.color = "#4f46e5"; }}
+                      onMouseLeave={function (e) { e.currentTarget.style.borderColor = "#e2e6ef"; e.currentTarget.style.color = "#4a5068"; }}
+                    >
+                      {q}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          {msgs.map(function (m, i) {
+            var isUser = m.role === "user";
+            return (
+              <div key={i} style={{
+                alignSelf: isUser ? "flex-end" : "flex-start",
+                maxWidth: "85%",
+              }}>
+                {!isUser && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
+                    <div style={{ width: 18, height: 18, borderRadius: 9, background: "linear-gradient(135deg,#4f46e5,#7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: "#fff" }}>A</div>
+                    <span style={{ fontSize: 9, fontWeight: 600, color: "#8891a8" }}>Ask Atlas</span>
+                  </div>
+                )}
+                <div style={{
+                  padding: "9px 13px", borderRadius: 12,
+                  background: isUser ? "linear-gradient(135deg,#4f46e5,#7c3aed)" : "#fff",
+                  color: isUser ? "#fff" : "#1a1d2e",
+                  fontSize: 12, lineHeight: 1.55,
+                  border: isUser ? "none" : "1px solid #e2e6ef",
+                  boxShadow: isUser ? "none" : "0 1px 3px rgba(0,0,0,0.04)",
+                  whiteSpace: "pre-wrap", wordBreak: "break-word",
+                }}>
+                  {isUser ? m.content : renderMd(m.content)}
+                </div>
+              </div>
+            );
+          })}
+          {loading && (
+            <div style={{ alignSelf: "flex-start", maxWidth: "85%" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
+                <div style={{ width: 18, height: 18, borderRadius: 9, background: "linear-gradient(135deg,#4f46e5,#7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 700, color: "#fff" }}>A</div>
+                <span style={{ fontSize: 9, fontWeight: 600, color: "#8891a8" }}>Ask Atlas</span>
+              </div>
+              <div style={{
+                padding: "12px 16px", borderRadius: 12,
+                background: "#fff", border: "1px solid #e2e6ef",
+                fontSize: 12, color: "#8891a8",
+                display: "flex", alignItems: "center", gap: 6,
+              }}>
+                <span className="chat-pulse" style={{ display: "inline-flex", gap: 3 }}>
+                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4f46e5", animation: "chatDot 1.2s infinite", animationDelay: "0s" }} />
+                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4f46e5", animation: "chatDot 1.2s infinite", animationDelay: "0.2s" }} />
+                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4f46e5", animation: "chatDot 1.2s infinite", animationDelay: "0.4s" }} />
+                </span>
+                <span>Thinking...</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Input area */}
+        <div style={{
+          padding: "10px 12px", borderTop: "1px solid #e2e6ef",
+          background: "#fff", display: "flex", gap: 8, alignItems: "center",
+        }}>
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={function (e) { setInput(e.target.value); }}
+            onKeyDown={function (e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+            placeholder="Ask about the atlas..."
+            style={{
+              flex: 1, padding: "9px 12px", borderRadius: 10,
+              border: "1px solid #e2e6ef", fontSize: 12,
+              outline: "none", background: "#f8f9fc",
+              transition: "border-color 0.15s",
+            }}
+            onFocus={function (e) { e.target.style.borderColor = "#4f46e5"; }}
+            onBlur={function (e) { e.target.style.borderColor = "#e2e6ef"; }}
+          />
+          <button
+            onClick={sendMessage}
+            disabled={loading || !input.trim()}
+            style={{
+              width: 34, height: 34, borderRadius: 10,
+              border: "none", cursor: loading || !input.trim() ? "default" : "pointer",
+              background: loading || !input.trim() ? "#e2e6ef" : "linear-gradient(135deg,#4f46e5,#7c3aed)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "all 0.15s",
+            }}
+          >
+            <span style={{ fontSize: 15, color: loading || !input.trim() ? "#8891a8" : "#fff" }}>{"\u2191"}</span>
+          </button>
+        </div>
+
+        {/* Powered by line */}
+        <div style={{
+          padding: "4px 12px 6px", background: "#fff",
+          fontSize: 8, color: "#b0b7c8", textAlign: "center",
+        }}>
+          Powered by Claude \u00b7 Anthropic
+        </div>
+      </div>
+
+      {/* Loading dots animation */}
+      <style>{"\n@keyframes chatDot {\n  0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }\n  30% { opacity: 1; transform: scale(1); }\n}\n"}</style>
+    </>
+  );
+}
+
 var LAYERS = [
   { id: 0, label: "Executive", color: C.indigo },
   { id: 6, label: "Patient Journey", color: C.orange },
   { id: 7, label: "Patient Personas", color: C.rose },
-  { id: 1, label: "Sequencing", color: C.violet },
-  { id: 2, label: "Friction", color: C.amber },
-  { id: 3, label: "Cost", color: C.red },
+  { id: 8, label: "Clinical Landscape", color: C.violet },
+  { id: 9, label: "Interventions", color: C.red },
   { id: 4, label: "Prescribers", color: C.emerald },
   { id: 5, label: "Outcomes", color: C.cyan },
 ];
@@ -1861,9 +2542,8 @@ export default function App() {
 
   var content = null;
   if (layer === 0) content = <L0 />;
-  else if (layer === 1) content = <L1 />;
-  else if (layer === 2) content = <L2 />;
-  else if (layer === 3) content = <L3 />;
+  else if (layer === 8) content = <L8 />;
+  else if (layer === 9) content = <L9 />;
   else if (layer === 4) content = <L4 />;
   else if (layer === 5) content = <L5 />;
   else if (layer === 7) content = <L7 />;
@@ -1874,10 +2554,17 @@ export default function App() {
       {/* Header */}
       <div style={{ padding: "14px 20px", borderBottom: "1px solid #e2e6ef", background: "#fff" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 28, height: 28, borderRadius: 7, background: "linear-gradient(135deg,#4f46e5,#7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#fff" }}>M</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 34, height: 34, borderRadius: 9, background: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: "#818cf8", letterSpacing: -0.5 }}>A</span>
+              <span style={{ fontSize: 14, fontWeight: 800, color: "#fff", letterSpacing: -0.5 }}>Rx</span>
+            </div>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3 }}>MELANOMA 2L RWD ATLAS</div>
+              <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: -0.3 }}>
+                <span style={{ color: "#1e293b" }}>Atlas</span><span style={{ color: "#818cf8" }}>Rx</span>
+                <span style={{ color: "#b0b7c8", fontWeight: 400, fontSize: 14 }}> — </span>
+                <span style={{ color: "#4a5068", fontWeight: 500, fontSize: 14 }}>Melanoma 2L</span>
+              </div>
               <div style={{ fontSize: 10, color: "#8891a8" }}>From Progression to Intervention — Strategic Decision Engine</div>
             </div>
           </div>
@@ -1917,6 +2604,9 @@ export default function App() {
       <div style={{ padding: "10px 20px", borderTop: "1px solid #e2e6ef", background: "#fff", fontSize: 9, color: "#8891a8" }}>
         Claims+EHR 2019-2025 | N=14,280 | Social listening: JMIR Cancer, BMC Cancer, PMC, Reddit NLP, EMJ, MIA
       </div>
+
+      {/* Floating Chat */}
+      <ChatPanel />
     </div>
   );
 }
