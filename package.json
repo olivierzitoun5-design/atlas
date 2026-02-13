@@ -1,0 +1,27 @@
+{
+  "name": "melanoma-2l-patient-journey-atlas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Metastatic Melanoma 2L Patient Journey Atlas — Interactive 8-layer strategic intelligence dashboard",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "vite preview --port ${PORT:-3000} --host"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.12.7"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
